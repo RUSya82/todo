@@ -27,7 +27,10 @@ let todoObj = {
         this.render();
     },
     getFromStorage: function() {
-        this.todo = JSON.parse(localStorage.todoList);
+        if (localStorage.todoList){
+            this.todo = JSON.parse(localStorage.todoList);
+        }
+
 
     },
     setToStorage: function() {
