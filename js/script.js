@@ -63,23 +63,6 @@ let todoObj = {
         localStorage.todoList = JSON.stringify(this.todo);
     },
     /**
-     * функция получения ссылки на элемент по значению value
-     * @param value - текст дела
-     * @returns {number} - ссылка на объект в массиве todo
-     */
-    // P.S. - вообще правильнее это делать по id конечно, оно точно будет уникальным)))
-    getOne: function(value) {
-        let target = 0;
-        if(value){
-            this.todo.forEach(function (item) {
-                if( value === item.value){
-                    target = item;
-                }
-            });
-        }
-        return target;
-    },
-    /**
      * Функция рендера всего todo - листа
      */
     render: function () {
@@ -98,14 +81,12 @@ let todoObj = {
             } else {
                 todoList.append(li);
             }
-            let todoText = li.querySelector('.text-todo');//ищем нужные кнопки
             let removeBtn = li.querySelector('.todo-remove');
             removeBtn.addEventListener('click', function (e) {  //навешиваем удаление
-                todoObj.delete(todoObj.getOne(todoText.textContent));       //находим элемент по тексту и удаляем
+                todoObj.delete(item);       //находим элемент по тексту и удаляем
             });
             let completeBtn = li.querySelector('.todo-complete');       //находим кнопку выполения
             completeBtn.addEventListener('click', function () {     //навешиваем событие выполения
-                let item = todoObj.getOne(todoText.textContent);                //находим нужный объект в массиве
                 item.completed = !item.completed;                               //реверс
                 todoObj.render();
                 todoObj.setToStorage();
