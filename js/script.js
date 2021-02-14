@@ -67,6 +67,7 @@ let todoObj = {
      * @param value - текст дела
      * @returns {number} - ссылка на объект в массиве todo
      */
+    // P.S. - вообще правильнее это делать по id конечно, оно точно будет уникальным)))
     getOne: function(value) {
         let target = 0;
         if(value){
