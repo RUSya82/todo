@@ -8,7 +8,7 @@ const todoCompleted = document.querySelector('.todo-completed');
 /**
  * Объект todо - листа
  * @type {{todo: [], add: todoObj.add, setToStorage: todoObj.setToStorage, init: todoObj.init,
- * getFromStorage: todoObj.getFromStorage, getOne: (function(*): number), delete: todoObj.delete,
+ * getFromStorage: todoObj.getFromStorage, delete: todoObj.delete,
  * render: todoObj.render}}
  */
 let todoObj = {
