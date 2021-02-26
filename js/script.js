@@ -92,15 +92,6 @@ class TodoList {
             } else {
                 this.todoList.append(li);
             }
-            // let removeBtn = li.querySelector('.todo-remove');
-            // removeBtn.addEventListener('click',  (e) => {  //навешиваем удаление
-            //     this.delete(item);       //находим элемент по тексту и удаляем
-            // });
-            // let completeBtn = li.querySelector('.todo-complete');       //находим кнопку выполения
-            // completeBtn.addEventListener('click',  (e) => {     //навешиваем событие выполения
-            //     this.completedItem(item);
-            // });
-
         });
     }
 
