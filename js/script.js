@@ -1,9 +1,5 @@
 'use strict';
 
-const headerInput = document.querySelector('.header-input');
-const todoControl = document.querySelector('.todo-control');
-const todoList = document.querySelector('.todo-list');
-const todoCompleted = document.querySelector('.todo-completed');
 
 /**
  * Объект todо - листа
@@ -11,105 +7,145 @@ const todoCompleted = document.querySelector('.todo-completed');
  * getFromStorage: todoObj.getFromStorage, delete: todoObj.delete,
  * render: todoObj.render}}
  */
-let todoObj = {
-    todo: [],           //массив с делами
+class TodoList {
+    constructor(headerInput, todoControl, todoList, todoCompleted, todoContainer) {
+        this.headerInput = document.querySelector(headerInput);
+        this.todoControl = document.querySelector(todoControl);;
+        this.todoList = document.querySelector(todoList);
+        this.todoCompleted = document.querySelector(todoCompleted);
+        this.todoContainer = document.querySelector(todoContainer);
+        this.todo = new Map();
+        this.init();
+
+    }
     /**
      * Инициализация объекта, получение данных и рендер
      */
-    init: function() {
+    init() {
         this.getFromStorage();
         this.render();
-    },
+        this.addListeners();
+    };
     /**
      * Функция добавления нового дела
      * Создаем объект, добавляем в массив, пишем в localStorage, рендерим
      * @param value
      */
-    add: function(value){
+    add(value){
         if (value){
             let newToDo = {
+                key: this.generateKey(),
                 value: value,
                 completed: false
             };
-            this.todo.push(newToDo);
+            this.todo.set(newToDo.key, newToDo);
             this.setToStorage();
             this.render();
         }
-    },
+    };
+    generateKey(){
+        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    }
     /**
      * Функция  удаления элемента
      * @param element - ссылка на конкретный элемент, который надо удалить
      */
-    delete: function(element) {
+    delete(element) {
         //удаляем элемент по индексу
         if(element){
-            todoObj.todo.splice(todoObj.todo.indexOf(element),1);
+            this.todo.delete(element.key);
             this.setToStorage();        //пишем в storage
             this.render();              //рендерим
         }
-    },
+    };
     /**
      * Функция получения из localStorage
      */
-    getFromStorage: function() {
+    getFromStorage() {
         if (localStorage.todoList){
-            this.todo = JSON.parse(localStorage.todoList);
+            this.todo = new Map(JSON.parse(localStorage.getItem('todoList')));
         }
-    },
+    };
     /**
      * Функция записи в localStorage
      */
-    setToStorage: function() {
-        localStorage.todoList = JSON.stringify(this.todo);
-    },
+    setToStorage() {
+        localStorage.setItem('todoList', JSON.stringify([...this.todo]));
+    }
     /**
      * Функция рендера всего todo - листа
      */
-    render: function () {
-        todoCompleted.innerHTML = '';       //чистим лист
-        todoList.innerHTML = '';
-        this.todo.forEach( function (item) {            //пробегаемся по всему массиву с объектами
+    render () {
+        this.todoCompleted.innerHTML = '';       //чистим лист
+        this.todoList.innerHTML = '';
+        this.todo.forEach( (item) => {            //пробегаемся по всему массиву с объектами
             let li = document.createElement('li');      //создаем элемент
             li.classList.add('todo-item');
+            li.key = item.key;
             li.innerHTML = `<span class="text-todo">${item.value}</span>` +     //заполняем
                 `<div class="todo-buttons">` +
                 `<button class="todo-remove"></button>` +
                 `<button class="todo-complete"></button>` +
                 `</div>`;
             if(item.completed){                                     //отрисовываем
-                todoCompleted.append(li);
+                this.todoCompleted.append(li);
             } else {
-                todoList.append(li);
+                this.todoList.append(li);
             }
-            let removeBtn = li.querySelector('.todo-remove');
-            removeBtn.addEventListener('click', function (e) {  //навешиваем удаление
-                todoObj.delete(item);       //находим элемент по тексту и удаляем
-            });
-            let completeBtn = li.querySelector('.todo-complete');       //находим кнопку выполения
-            completeBtn.addEventListener('click', function () {     //навешиваем событие выполения
-                item.completed = !item.completed;                               //реверс
-                todoObj.render();
-                todoObj.setToStorage();
-            });
+            // let removeBtn = li.querySelector('.todo-remove');
+            // removeBtn.addEventListener('click',  (e) => {  //навешиваем удаление
+            //     this.delete(item);       //находим элемент по тексту и удаляем
+            // });
+            // let completeBtn = li.querySelector('.todo-complete');       //находим кнопку выполения
+            // completeBtn.addEventListener('click',  (e) => {     //навешиваем событие выполения
+            //     this.completedItem(item);
+            // });
 
         });
+    }
 
+    /**
+     * отмечаем дело выполненным
+     * @param item
+     */
+    completedItem(item){
+        item.completed = !item.completed;                               //реверс
+        this.render();
+        this.setToStorage();
+    }
 
+    /**
+     * добавление слушателей
+     */
+    addListeners(){
+        this.todoControl.addEventListener('submit', (e) => {
+            e.preventDefault();
+            let val = this.headerInput.value;
+            if(val){
+                todoObj.add(val);
+            }else {
+                alert("Вы не ввели значение!")
+            }
+            this.headerInput.value = '';
+        });
+        this.todoContainer.addEventListener('click', (e) => {
+            let target = e.target;
+            let elemLi = target.closest('.todo-item');
+            if(target.matches('.todo-remove')){
+                this.delete(this.todo.get(elemLi.key));
+            }
+            if(target.matches('.todo-complete')){
+                this.completedItem(this.todo.get(elemLi.key));
+            }
+        });
     }
 };
+
 //инициализируем объект
-todoObj.init();
+let todoObj = new TodoList('.header-input','.todo-control', '.todo-list', '.todo-completed', '.todo-container');
+//todoObj.init();
 //навешиваем событие на форму добавления
-todoControl.addEventListener('submit', function (e) {
-    e.preventDefault();
-    let val = headerInput.value;
-    if(val){
-        todoObj.add(val);
-    }else {
-        alert("Вы не ввели значение!")
-    }
-    headerInput.value = '';
-});
+
 
 
 
